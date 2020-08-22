@@ -1,30 +1,54 @@
 version: '3'
 services:
+    # application
     webapi:
         build: ../desu-noto-api
         ports: 
             - "8080:80"
         depends_on: 
             - mongo
+            - db
+    
+    # command database
     mongo:
         image: mongo
         restart: always
         ports:
-            - "27017:27017"
+            - 27017:27017
         environment:
             MONGO_INITDB_ROOT_USERNAME: desuroot
             MONGO_INITDB_ROOT_PASSWORD: 123123
         volumes:
             - mongo-data:/data/db
-    
     mongo-express:
         image: mongo-express
         restart: always
         ports:
-            - 8081:8081
+            - 17017:8081
         environment:
             ME_CONFIG_MONGODB_ADMINUSERNAME: desuroot
             ME_CONFIG_MONGODB_ADMINPASSWORD: 123123
 
+    # query database
+    db:
+        image: mysql:8.0.21
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        environment:
+            MYSQL_DATABASE: desunotodb
+            MYSQL_USER: dsuser
+            MYSQL_PASSWORD: 123123
+            MYSQL_ROOT_PASSWORD: admin123123
+        ports:
+            - 3306:3306
+        volumes:
+            - mysql-data:/var/lib/mysql
+    adminer:
+        image: adminer
+        restart: always
+        ports: 
+            - 13306:8080
+
 volumes:
     mongo-data:
+    mysql-data:
